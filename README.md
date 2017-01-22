@@ -1,16 +1,15 @@
 # RedisGCRA
 [![Build Status](https://travis-ci.org/rwz/redis-gcra.svg?branch=master)](https://travis-ci.org/rwz/redis-gcra)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/redis/gcra`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem is an implementation of GCRA for rate limiting based on Redis. The
+code requires Redis version 3.2+ or newer since it relies on
+[`replicate_comands`][redis-replicate-commands] feature.
 
-TODO: Delete this and the text above, and describe your gem
-
+redis-replicate-commands: https://redis.io/commands/eval#replicating-commands-instead-of-scripts
 ## Installation
 
-Add this line to your application's Gemfile:
-
 ```ruby
-gem 'redis-gcra'
+gem "redis-gcra"
 ```
 
 And then execute:
@@ -23,18 +22,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+redis = Redis.new
 
-## Development
+result = RedisGCRA.limit(
+  redis: redis,
+  key: "rate-limit-key",
+  burst: 1000,
+  rate: 100,
+  period: 60,
+  cost: 2
+)
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/redis-gcra.
-
+result.limited?    # => false - request should not be limited
+result.remaning    # => 999   - remaningn number of request until limited
+result.retry_after # => nil   - can retry without delay
+result.reset_after # => ~0.6  - in 0.6s limit will completely reset
+```
 
 ## License
 
