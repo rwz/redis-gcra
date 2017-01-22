@@ -4,14 +4,14 @@ describe RedisGCRA do
   let(:redis) { RedisConnection }
 
   context "#limit" do
-    def call
+    def call(cost: 1, burst: 300, rate: 60, period: 60)
       described_class.limit(
         redis: redis,
         key: "foo",
-        burst: 300,
-        rate: 60,
-        period: 60,
-        cost: 1
+        burst: burst,
+        rate: rate,
+        period: period,
+        cost: cost
       )
     end
 
@@ -22,6 +22,15 @@ describe RedisGCRA do
       expect(result.remaining).to eq(199)
       expect(result.retry_after).to be_nil
       expect(result.reset_after).to be_within(0.1).of(101.0)
+    end
+
+    it "calculates rate limit with non-1 cost correctly" do
+      100.times { call(cost: 2) }
+      result = call(cost: 2)
+      expect(result).to_not be_limited
+      expect(result.remaining).to eq(98)
+      expect(result.retry_after).to be_nil
+      expect(result.reset_after).to be_within(0.1).of(202.0)
     end
 
     it "limits once bucket has been depleted" do
@@ -54,5 +63,29 @@ describe RedisGCRA do
       sha = described_class.instance_eval { redis_cache.values.first.values.first }
       expect(redis.script(:exists, sha)).to be(true)
     end
+
+    test_cases = [
+      { burst: 1000, rate: 100, period: 60, cost: 2,   repeat: 1, expected_remainign: 998 },
+      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 1, expected_remainign: 800 },
+      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 4, expected_remainign: 200 },
+      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 5, expected_remainign: 0 },
+      { burst: 1000, rate: 100, period: 60, cost: 1,   repeat: 137, expected_remainign: 863 }
+    ]
+
+    test_cases.each_with_index do |test_case, index|
+      it "calculates test case ##{index+1} correctly" do
+        result = test_case[:repeat].times.map do
+          call(
+            burst: test_case[:burst],
+            rate: test_case[:burst],
+            period: test_case[:period],
+            cost: test_case[:cost]
+          )
+        end.last
+
+        expect(result.remaining).to eq(test_case[:expected_remainign])
+      end
+    end
+
   end
 end
