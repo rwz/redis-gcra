@@ -3,4 +3,6 @@ language: ruby
 rvm:
   - 2.4.0
   - 2.3.3
+services:
+  - redis-server
 before_install: gem install bundler -v 1.13.6
