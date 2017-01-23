@@ -35,9 +35,16 @@ result = RedisGCRA.limit(
 )
 
 result.limited?    # => false - request should not be limited
-result.remaning    # => 999   - remaningn number of request until limited
+result.remaning    # => 998   - remaining number of requests until limited
 result.retry_after # => nil   - can retry without delay
-result.reset_after # => ~0.6  - in 0.6s limit will completely reset
+result.reset_after # => ~0.6  - in 0.6s rate limiter will completely reset
+
+# do this 500 more times and then
+
+result.limited?    # => true - request should be limited
+result.remaining   # => 0    - no requests can be made at this point
+result.retry_after # => ~1.1 - can retry in 1.1seconds
+result.reset_after # => ~600 - in 600s rate limiter will completely reset
 ```
 
 ## License
