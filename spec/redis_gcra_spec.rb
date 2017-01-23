@@ -71,16 +71,6 @@ describe RedisGCRA do
       expect(result.retry_after).to be_within(0.1).of(1.0)
     end
 
-    it "caches script" do
-      described_class.instance_eval { redis_cache.clear }
-      redis.script :flush
-
-      expect(&method(:call)).to_not raise_error
-
-      sha = described_class.instance_eval { redis_cache.values.first.values.first }
-      expect(redis.script(:exists, sha)).to be(true)
-    end
-
     test_cases = [
       { burst: 1000, rate: 100, period: 60, cost: 2,    repeat: 1, expected_remainign: 998 },
       { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1, expected_remainign: 800 },
@@ -146,6 +136,24 @@ describe RedisGCRA do
       expect(result.remaining).to eq(0)
       expect(result.retry_after).to be_nil
       expect(result.reset_after).to be_within(0.1).of(300.0)
+    end
+  end
+
+  context "caching" do
+    it "caches scripts" do
+      described_class.instance_eval { redis_cache.clear }
+      redis.script :flush
+
+      options = { redis: redis, key: "foo", burst: 300, rate: 60, period: 60 }
+
+      expect { described_class.limit **options }.to_not raise_error
+      expect { described_class.peek  **options }.to_not raise_error
+
+      shas = described_class.instance_eval { redis_cache.values }
+
+      shas.each do |sha|
+        expect(redis.script(:exists, sha)).to be(true)
+      end
     end
   end
 end

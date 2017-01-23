@@ -44,13 +44,12 @@ module RedisGCRA
   end
 
   def get_cached_sha(redis, script_name)
-    sha = redis_cache.dig(redis.id, script_name)
-    return sha if sha
+    cache_key = "#{redis.id}/#{script_name}"
+    redis_cache[cache_key] ||= load_script(redis, script_name)
+  end
 
-    script = File.read(File.expand_path("../../vendor/#{script_name}.lua", __FILE__))
-    sha = redis.script(:load, script)
-    redis_cache[redis.id] ||= {}
-    redis_cache[redis.id][script_name] = sha
-    sha
+  def load_script(redis, script_name)
+    script_path = File.expand_path("../../vendor/#{script_name}.lua", __FILE__)
+    redis.script(:load, File.read(script_path))
   end
 end
