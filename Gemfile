@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in gcra-rate-limit.gemspec
 gemspec
 
 gem "pry",     "~> 0.10"
