@@ -48,10 +48,10 @@ result.reset_after # => ~0.6  - in 0.6 seconds rate limiter will completely rese
 
 # call limit 499 more times in rapid succession and you get:
 
-result.limited?    # => true - request should be limited
-result.remaining   # => 0    - no requests can be made at this point
-result.retry_after # => ~1.1 - can retry in 1.1 seconds
-result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
+result.limited?    # => true  - request should be limited
+result.remaining   # => 0     - no requests can be made at this point
+result.retry_after # => ~1.1  - can retry in 1.1 seconds
+result.reset_after # => ~600  - in 600 seconds rate limiter will completely reset
 ```
 
 The implementation utilizes single key in Redis that matches the key you pass
@@ -77,10 +77,10 @@ RedisGCRA.peek(
   period: 60 # seconds
 )
 
-result.limited?    # => true - current state is limited
-result.remaining   # => 0    - no requests can be made
-result.retry_after # => nil  - peek always returns nil here
-result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
+result.limited?    # => true  - current state is limited
+result.remaining   # => 0     - no requests can be made
+result.retry_after # => nil   - peek always returns nil here
+result.reset_after # => ~600  - in 600 seconds rate limiter will completely reset
 ```
 
 ## Inspiration
@@ -97,4 +97,3 @@ Leach][brandur] and his amazing work on [throttled Go package][throttled].
 The gem is available as open source under the terms of the [MIT License][mit].
 
 [mit]: http://opensource.org/licenses/MIT
-
