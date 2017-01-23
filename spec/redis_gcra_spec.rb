@@ -54,6 +54,14 @@ describe RedisGCRA do
       expect(passed_result).to_not be_limited
     end
 
+    it "should pass when cost is bigger than the remaining" do
+      call cost: 299
+      result = call(cost: 2)
+      expect(result).to be_limited
+      expect(result.remaining).to eq(0)
+      expect(result.retry_after).to be_within(0.1).of(1.0)
+    end
+
     it "caches script" do
       described_class.instance_eval { redis_cache.clear }
       redis.script :flush
@@ -65,11 +73,12 @@ describe RedisGCRA do
     end
 
     test_cases = [
-      { burst: 1000, rate: 100, period: 60, cost: 2,   repeat: 1, expected_remainign: 998 },
-      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 1, expected_remainign: 800 },
-      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 4, expected_remainign: 200 },
-      { burst: 1000, rate: 100, period: 60, cost: 200, repeat: 5, expected_remainign: 0 },
-      { burst: 1000, rate: 100, period: 60, cost: 1,   repeat: 137, expected_remainign: 863 }
+      { burst: 1000, rate: 100, period: 60, cost: 2,    repeat: 1, expected_remainign: 998 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1, expected_remainign: 800 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 4, expected_remainign: 200 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 5, expected_remainign: 0 },
+      { burst: 1000, rate: 100, period: 60, cost: 1,    repeat: 137, expected_remainign: 863 },
+      { burst: 1000, rate: 100, period: 60, cost: 1001, repeat: 1, expected_remainign: 0 }
     ]
 
     test_cases.each_with_index do |test_case, index|
