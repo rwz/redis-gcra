@@ -65,7 +65,7 @@ redis.del "overall-account/bob@example.com"
 ```
 
 You call also retrieve the current state of rate limiter for particular key
-without actually modifying the state. Of order to do that, use the `peek`
+without actually modifying the state. In order to do that, use the `peek`
 method:
 
 ```ruby
