@@ -44,7 +44,7 @@ else
   local ttl = new_tat - now
   redis.call("SET", rate_limit_key, new_tat, "EX", math.ceil(ttl))
   local next_in = burst_offset - ttl
-  remaining = math.floor(next_in / emission_interval + 0.5)
+  remaining = math.floor(next_in / emission_interval)
   reset_after = ttl
   retry_after = -1
   limited = 0
