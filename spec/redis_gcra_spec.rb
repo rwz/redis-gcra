@@ -4,10 +4,10 @@ describe RedisGCRA do
   let(:redis) { RedisConnection }
 
   context "#limit" do
-    def call(cost: 1, burst: 300, rate: 60, period: 60)
+    def call(key: "foo", cost: 1, burst: 300, rate: 60, period: 60)
       described_class.limit(
         redis: redis,
-        key: "foo",
+        key: key,
         burst: burst,
         rate: rate,
         period: period,
@@ -22,6 +22,15 @@ describe RedisGCRA do
       expect(result.remaining).to eq(199)
       expect(result.retry_after).to be_nil
       expect(result.reset_after).to be_within(0.1).of(101.0)
+    end
+
+    it "rate limits different keys independently" do
+      100.times { call cost: 10 }
+      result = call(cost: 2, key: "bar")
+      expect(result).to_not be_limited
+      expect(result.remaining).to eq(298)
+      expect(result.retry_after).to be_nil
+      expect(result.reset_after).to be_within(0.1).of(2.0)
     end
 
     it "calculates rate limit with non-1 cost correctly" do
