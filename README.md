@@ -1,10 +1,11 @@
 # RedisGCRA
 [![Build Status](https://travis-ci.org/rwz/redis-gcra.svg?branch=master)](https://travis-ci.org/rwz/redis-gcra)
 
-This gem is an implementation of GCRA for rate limiting based on Redis. The
-code requires Redis version 3.2 or newer since it relies on
+This gem is an implementation of [GCRA][gcra] for rate limiting based on Redis.
+The code requires Redis version 3.2 or newer since it relies on
 [`replicate_commands`][redis-replicate-commands] feature.
 
+[gcra]: https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm
 [redis-replicate-commands]: https://redis.io/commands/eval#replicating-commands-instead-of-scripts
 
 ## Installation
@@ -82,8 +83,18 @@ result.retry_after # => nil  - peek always return nil here
 result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
 ```
 
+## Inspiration
+
+This code was inspired by this great [blog post][blog-post] by [Brandur
+Leach][brandur] and his amazing work on [throttled Go package][throttled].
+
+[blog-post]: https://brandur.org/rate-limiting
+[brandur]: https://github.com/brandur
+[throttled]: https://github.com/throttled/throttled
+
 ## License
 
-The gem is available as open source under the terms of the [MIT
-License](http://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [MIT License][mit].
+
+[mit]: http://opensource.org/licenses/MIT
 
