@@ -6,6 +6,7 @@ code requires Redis version 3.2 or newer since it relies on
 [`replicate_commands`][redis-replicate-commands] feature.
 
 [redis-replicate-commands]: https://redis.io/commands/eval#replicating-commands-instead-of-scripts
+
 ## Installation
 
 ```ruby
