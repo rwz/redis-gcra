@@ -79,7 +79,7 @@ RedisGCRA.peek(
 
 result.limited?    # => true - current state is limited
 result.remaining   # => 0    - no requests can be made
-result.retry_after # => nil  - peek always return nil here
+result.retry_after # => nil  - peek always returns nil here
 result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
 ```
 
