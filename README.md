@@ -23,6 +23,11 @@ Or install it yourself as:
 
 ## Usage
 
+In order to perform rate limiting, you need to call the `limit` method.
+
+In this example the rate limit bucket has 1000 tokens in it and recovers at
+speed of 100 tokens per minute.
+
 ```ruby
 redis = Redis.new
 
@@ -31,7 +36,7 @@ result = RedisGCRA.limit(
   key: "overall-account/bob@example.com",
   burst: 1000,
   rate: 100,
-  period: 60,
+  period: 60, # seconds
   cost: 2
 )
 
@@ -40,7 +45,7 @@ result.remaning    # => 998   - remaining number of requests until limited
 result.retry_after # => nil   - can retry without delay
 result.reset_after # => ~0.6  - in 0.6 seconds rate limiter will completely reset
 
-# do this 500 more times and then
+# call limit 499 more times in rapid succession and you get:
 
 result.limited?    # => true - request should be limited
 result.remaining   # => 0    - no requests can be made at this point
@@ -56,6 +61,25 @@ just delete the key from Redis:
 # Let's imagine `overall-account/bob@example.com` is limited.
 # This will effectively reset limit for the key:
 redis.del "overall-account/bob@example.com"
+```
+
+You call also retrieve the current state of rate limiter for particular key
+without actually modifying the state. Of order to do that, use the `peek`
+method:
+
+```ruby
+RedisGCRA.peek(
+  redis: redis,
+  key: "overall-account/bob@example.com",
+  burst: 1000,
+  rate: 100,
+  period: 60 # seconds
+)
+
+result.limited?    # => true - current state is limited
+result.remaining   # => 0    - no requests can be made
+result.retry_after # => nil  - peek always return nil here
+result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
 ```
 
 ## License
