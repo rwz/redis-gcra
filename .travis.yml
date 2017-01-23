@@ -3,10 +3,10 @@ language: ruby
 rvm:
   - 2.4.0
   - 2.3.3
-services:
-  - redis-server
-addons:
-  apt:
-    packages:
-      - redis-server
-before_install: gem install bundler -v 1.13.6
+os:
+  - osx
+before_install:
+  - brew update
+  - brew install redis
+  - brew services start redis
+  - gem install bundler -v 1.13.6
