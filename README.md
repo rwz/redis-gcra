@@ -27,7 +27,7 @@ redis = Redis.new
 
 result = RedisGCRA.limit(
   redis: redis,
-  key: "rate-limit-key",
+  key: "overall-account/bob@example.com",
   burst: 1000,
   rate: 100,
   period: 60,
@@ -45,6 +45,16 @@ result.limited?    # => true - request should be limited
 result.remaining   # => 0    - no requests can be made at this point
 result.retry_after # => ~1.1 - can retry in 1.1 seconds
 result.reset_after # => ~600 - in 600 seconds rate limiter will completely reset
+```
+
+The implementation utilizes single key in Redis that matches the key you pass
+to the `limit` method. If you need to reset rate limiter for particular key,
+just delete the key from Redis:
+
+```ruby
+# Let's imagine `overall-account/bob@example.com` is limited.
+# This will effectively reset limit for the key:
+redis.del "overall-account/bob@example.com"
 ```
 
 ## License
