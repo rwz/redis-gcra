@@ -1,14 +1,9 @@
--- this script has side-effects, so it requires replicate commands mode
-redis.replicate_commands()
-
 local rate_limit_key = KEYS[1]
 local burst = ARGV[1]
 local rate = ARGV[2]
 local period = ARGV[3]
-local cost = ARGV[4]
 
 local emission_interval = period / rate
-local increment = emission_interval * cost
 local burst_offset = emission_interval * burst
 local now = redis.call("TIME")
 
@@ -25,27 +20,26 @@ else
   tat = tonumber(tat)
 end
 
-local new_tat = math.max(tat, now) + increment
-
-local allow_at = new_tat - burst_offset
+local allow_at = math.max(tat, now) - burst_offset
 local diff = now - allow_at
 
-local limited
-local remaining
-local retry_after
-local reset_after
+local remaining = math.floor(diff / emission_interval)
 
-if diff < 0 then
+local reset_after = tat - now
+if reset_after == 0 then
+  reset_after = -1
+end
+
+local limited
+
+if remaining == 0 then
   limited = 1
-  remaining = 0
-  reset_after = tat - now
-  retry_after = diff * -1
 else
   limited = 0
-  reset_after = new_tat - now
-  redis.call("SET", rate_limit_key, new_tat, "EX", math.ceil(reset_after))
-  remaining = math.floor(diff / emission_interval)
-  retry_after = -1
 end
+
+-- retry_after is always nil because it doesn't make much sense in inspect
+-- context
+local retry_after = -1
 
 return {limited, remaining, tostring(retry_after), tostring(reset_after)}

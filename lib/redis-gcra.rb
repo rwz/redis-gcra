@@ -6,22 +6,29 @@ module RedisGCRA
   autoload :Result, "redis-gcra/result"
 
   def limit(redis:, key:, burst:, rate:, period:, cost: 1)
-    resp = call_script(
-      redis,
-      :perform_gcra_ratelimit,
-      keys: [key],
-      argv: [burst, rate, period, cost]
-    )
+    call redis, :perform_gcra_ratelimit, key, burst, rate, period, cost
+  end
 
-    Result.new(
-      limited: resp[0] == 1,
-      remaining: resp[1],
-      retry_after: resp[2] == "-1" ? nil : resp[2].to_f,
-      reset_after: resp[3].to_f
-    )
+  def peek(redis:, key:, burst:, rate:, period:)
+    call redis, :inspect_gcra_ratelimit, key, burst, rate, period
   end
 
   private
+
+  def call(redis, script_name, key, *argv)
+    res = call_script(redis, script_name, keys: [key], argv: argv)
+
+    Result.new(
+      limited: res[0] == 1,
+      remaining: res[1],
+      retry_after: parse_float_string(res[2]),
+      reset_after: parse_float_string(res[3])
+    )
+  end
+
+  def parse_float_string(value)
+    value == "-1" ? nil : value.to_f
+  end
 
   def call_script(redis, script_name, *args)
     script_sha = mutex.synchronize { get_cached_sha(redis, script_name) }

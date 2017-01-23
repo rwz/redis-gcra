@@ -104,6 +104,48 @@ describe RedisGCRA do
         expect(result.remaining).to eq(test_case[:expected_remainign])
       end
     end
+  end
 
+  context "#peek" do
+    let(:default_config) { { redis: redis, key: "foo", burst: 300, rate: 60, period: 60 } }
+
+    def peek(**options)
+      described_class.peek(**default_config.merge(options))
+    end
+
+    def limit(cost: 1, **options)
+      described_class.limit(cost: cost, **default_config.merge(options))
+    end
+
+    it "returns initial state without modifying it" do
+      result = peek
+
+      expect(result).to_not be_limited
+      expect(result.remaining).to eq(300)
+      expect(result.retry_after).to be_nil
+      expect(result.reset_after).to be_nil
+    end
+
+    it "describeds partially drained state correctly" do
+      limit cost: 10
+
+      result = peek
+
+      expect(result).to_not be_limited
+      expect(result.remaining).to eq(290)
+      expect(result.retry_after).to be_nil
+      expect(result.reset_after).to be_within(0.1).of(10.0)
+    end
+
+    it "describes fully drained state correctly" do
+      limit cost: 300
+
+      result = peek
+
+      expect(result).to be_limited
+      expect(result.remaining).to eq(0)
+      expect(result.retry_after).to be_nil
+      expect(result.reset_after).to be_within(0.1).of(300.0)
+    end
   end
 end
