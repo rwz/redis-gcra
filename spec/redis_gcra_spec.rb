@@ -130,12 +130,14 @@ describe RedisGCRA do
     it "describes fully drained state correctly" do
       limit cost: 300
 
+      sleep 0.5
+
       result = peek
 
       expect(result).to be_limited
       expect(result.remaining).to eq(0)
-      expect(result.retry_after).to be_nil
-      expect(result.reset_after).to be_within(0.1).of(300.0)
+      expect(result.retry_after).to be_within(0.1).of(0.5)
+      expect(result.reset_after).to be_within(0.1).of(299.5)
     end
   end
 

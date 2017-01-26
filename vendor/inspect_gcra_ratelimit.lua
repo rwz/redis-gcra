@@ -31,15 +31,14 @@ if reset_after == 0 then
 end
 
 local limited
+local retry_after
 
 if remaining == 0 then
   limited = 1
+  retry_after = emission_interval - diff
 else
   limited = 0
+  retry_after = -1
 end
-
--- retry_after is always nil because it doesn't make much sense in inspect
--- context
-local retry_after = -1
 
 return {limited, remaining, tostring(retry_after), tostring(reset_after)}
