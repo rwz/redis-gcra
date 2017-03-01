@@ -69,7 +69,7 @@ without actually modifying the state. In order to do that, use the `peek`
 method:
 
 ```ruby
-RedisGCRA.peek(
+result = RedisGCRA.peek(
   redis: redis,
   key: "overall-account/bob@example.com",
   burst: 1000,
