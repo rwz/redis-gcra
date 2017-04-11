@@ -72,12 +72,12 @@ describe RedisGCRA do
     end
 
     test_cases = [
-      { burst: 1000, rate: 100, period: 60, cost: 2,    repeat: 1, expected_remainign: 998 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1, expected_remainign: 800 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 4, expected_remainign: 200 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 5, expected_remainign: 0 },
-      { burst: 1000, rate: 100, period: 60, cost: 1,    repeat: 137, expected_remainign: 863 },
-      { burst: 1000, rate: 100, period: 60, cost: 1001, repeat: 1, expected_remainign: 0 }
+      { burst: 1000, rate: 100, period: 60, cost: 2,    repeat: 1, expected_remaining: 998 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1, expected_remaining: 800 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 4, expected_remaining: 200 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 5, expected_remaining: 0 },
+      { burst: 1000, rate: 100, period: 60, cost: 1,    repeat: 137, expected_remaining: 863 },
+      { burst: 1000, rate: 100, period: 60, cost: 1001, repeat: 1, expected_remaining: 0 }
     ]
 
     test_cases.each_with_index do |test_case, index|
@@ -91,7 +91,7 @@ describe RedisGCRA do
           )
         end.last
 
-        expect(result.remaining).to eq(test_case[:expected_remainign])
+        expect(result.remaining).to eq(test_case[:expected_remaining])
       end
     end
   end
