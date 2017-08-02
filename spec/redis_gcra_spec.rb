@@ -85,7 +85,7 @@ describe RedisGCRA do
         result = test_case[:repeat].times.map do
           call(
             burst: test_case[:burst],
-            rate: test_case[:burst],
+            rate: test_case[:rate],
             period: test_case[:period],
             cost: test_case[:cost]
           )
