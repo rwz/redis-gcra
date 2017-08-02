@@ -141,21 +141,39 @@ describe RedisGCRA do
     end
   end
 
-  context "caching" do
-    it "caches scripts" do
+  context "loading scripts" do
+    let(:options) { { redis: redis, key: "foo", burst: 300, rate: 60, period: 60 } }
+
+    before do
       described_class.instance_eval { redis_cache.clear }
       redis.script :flush
+    end
 
-      options = { redis: redis, key: "foo", burst: 300, rate: 60, period: 60 }
+    def peek
+      described_class.peek(**options)
+    end
 
-      expect { described_class.limit **options }.to_not raise_error
-      expect { described_class.peek  **options }.to_not raise_error
+    def limit
+      described_class.limit(**options)
+    end
+
+    it "loads scripts" do
+      expect { limit }.to_not raise_error
+      expect { peek }.to_not raise_error
 
       shas = described_class.instance_eval { redis_cache.values }
 
       shas.each do |sha|
         expect(redis.script(:exists, sha)).to be(true)
       end
+    end
+
+    it "only loads when script is not loaded already" do
+      expect(redis).to receive(:script).with(:exists, /\A\h{40}\z/).twice.and_return(true)
+      expect(redis).to_not receive(:script).with(:load, anything)
+
+      expect { limit }.to raise_error(Redis::CommandError, /NOSCRIPT/)
+      expect { peek }.to raise_error(Redis::CommandError, /NOSCRIPT/)
     end
   end
 end

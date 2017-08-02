@@ -1,3 +1,4 @@
+require "digest/sha1"
 require "thread"
 
 module RedisGCRA
@@ -50,6 +51,9 @@ module RedisGCRA
 
   def load_script(redis, script_name)
     script_path = File.expand_path("../../vendor/#{script_name}.lua", __FILE__)
+    script = File.read(script_path)
+    script_sha = Digest::SHA1.hexdigest(script)
+    return script_sha if redis.script(:exists, script_sha)
     redis.script(:load, File.read(script_path))
   end
 end
