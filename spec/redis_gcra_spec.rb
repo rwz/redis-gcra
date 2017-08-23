@@ -72,12 +72,14 @@ describe RedisGCRA do
     end
 
     test_cases = [
-      { burst: 1000, rate: 100, period: 60, cost: 2,    repeat: 1, expected_remaining: 998 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1, expected_remaining: 800 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 4, expected_remaining: 200 },
-      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 5, expected_remaining: 0 },
+      { burst: 4500, rate: 75,  period: 60, cost: 1,    repeat: 1,   expected_remaining: 4499 },
+      { burst: 4500, rate: 75,  period: 60, cost: 1,    repeat: 2,   expected_remaining: 4498 },
+      { burst: 4500, rate: 75,  period: 60, cost: 2,    repeat: 1,   expected_remaining: 4498 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 1,   expected_remaining: 800 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 4,   expected_remaining: 200 },
+      { burst: 1000, rate: 100, period: 60, cost: 200,  repeat: 5,   expected_remaining: 0 },
       { burst: 1000, rate: 100, period: 60, cost: 1,    repeat: 137, expected_remaining: 863 },
-      { burst: 1000, rate: 100, period: 60, cost: 1001, repeat: 1, expected_remaining: 0 }
+      { burst: 1000, rate: 100, period: 60, cost: 1001, repeat: 1,   expected_remaining: 0 }
     ]
 
     test_cases.each_with_index do |test_case, index|
@@ -130,14 +132,14 @@ describe RedisGCRA do
     it "describes fully drained state correctly" do
       limit cost: 300
 
-      sleep 0.5
+      sleep 0.5 # should not be enough time to recover from 0 to 1
 
       result = peek
 
-      expect(result).to be_limited
       expect(result.remaining).to eq(0)
       expect(result.retry_after).to be_within(0.1).of(0.5)
       expect(result.reset_after).to be_within(0.1).of(299.5)
+      expect(result).to be_limited
     end
   end
 

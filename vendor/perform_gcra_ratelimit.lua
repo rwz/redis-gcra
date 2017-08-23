@@ -49,7 +49,7 @@ else
   limited = 0
   reset_after = new_tat - now
   redis.call("SET", rate_limit_key, new_tat, "EX", math.ceil(reset_after))
-  remaining = math.floor(diff / emission_interval)
+  remaining = math.floor(diff / emission_interval + 0.5) -- poor man's round
   retry_after = -1
 end
 
