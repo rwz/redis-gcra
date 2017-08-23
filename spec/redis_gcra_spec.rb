@@ -132,13 +132,14 @@ describe RedisGCRA do
     it "describes fully drained state correctly" do
       limit cost: 300
 
-      sleep 0.5 # should not be enough time to recover from 0 to 1
+      # wait a bit, but not enough for the bucket to recover from 0 to 1
+      sleep 0.3
 
       result = peek
 
       expect(result.remaining).to eq(0)
-      expect(result.retry_after).to be_within(0.1).of(0.5)
-      expect(result.reset_after).to be_within(0.1).of(299.5)
+      expect(result.retry_after).to be_within(0.1).of(0.7) # 1 second - 0.2
+      expect(result.reset_after).to be_within(0.1).of(299.7) # 300 seconds - 0.2
       expect(result).to be_limited
     end
   end

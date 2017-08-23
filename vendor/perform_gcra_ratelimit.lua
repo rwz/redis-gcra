@@ -36,11 +36,12 @@ local allow_at = new_tat - burst_offset
 local diff = now - allow_at
 
 local limited
-local remaining
 local retry_after
 local reset_after
 
-if diff < 0 then
+local remaining = math.floor(diff / emission_interval + 0.5) -- poor man's round
+
+if remaining < 0 then
   limited = 1
   remaining = 0
   reset_after = tat - now
@@ -49,7 +50,6 @@ else
   limited = 0
   reset_after = new_tat - now
   redis.call("SET", rate_limit_key, new_tat, "EX", math.ceil(reset_after))
-  remaining = math.floor(diff / emission_interval + 0.5) -- poor man's round
   retry_after = -1
 end
 

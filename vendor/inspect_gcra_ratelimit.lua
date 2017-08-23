@@ -28,7 +28,7 @@ end
 local allow_at = math.max(tat, now) - burst_offset
 local diff = now - allow_at
 
-local remaining = math.floor(diff / emission_interval)
+local remaining = math.floor(diff / emission_interval + 0.5) -- poor's man round
 
 local reset_after = tat - now
 if reset_after == 0 then
@@ -38,7 +38,8 @@ end
 local limited
 local retry_after
 
-if remaining == 0 then
+if remaining < 1 then
+  remaining = 0
   limited = 1
   retry_after = emission_interval - diff
 else
