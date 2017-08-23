@@ -164,9 +164,11 @@ describe RedisGCRA do
       expect { limit }.to_not raise_error
       expect { peek }.to_not raise_error
 
-      shas = described_class.instance_eval { redis_cache.values }
+      shas = described_class.instance_eval { redis_cache }
 
-      shas.each do |sha|
+      expect(shas.keys).to contain_exactly(/inspect_gcra_ratelimit\z/, /perform_gcra_ratelimit\z/)
+
+      shas.each do |_, sha|
         expect(redis.script(:exists, sha)).to be(true)
       end
     end
