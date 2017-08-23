@@ -1,14 +1,10 @@
-sudo: false
 language: ruby
 rvm:
   - 2.4.1
   - 2.3.3
   - 2.2
   - 2.1
-os:
-  - osx
 before_install:
-  - brew update
-  - brew install redis
-  - brew services start redis
-  - gem install bundler -v 1.13.6
+  - wget -qO- 'https://github.com/antirez/redis/archive/3.2.10.tar.gz' | tar -xzC /tmp
+  - make -j -C /tmp/redis-3.2.10 INSTALL_BIN=/tmp/redis-3.2.10 install
+  - cd /tmp/redis-3.2.10/src && ./redis-server > /dev/null 2>&1 &
