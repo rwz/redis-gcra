@@ -1,5 +1,6 @@
 # RedisGCRA
 [![Build Status](https://travis-ci.org/rwz/redis-gcra.svg?branch=master)](https://travis-ci.org/rwz/redis-gcra)
+[![Gem Version](https://img.shields.io/gem/v/redis-gcra.svg)](https://rubygems.org/gems/redis-gcra)
 
 This gem is an implementation of [GCRA][gcra] for rate limiting based on Redis.
 The code requires Redis version 3.2 or newer since it relies on
