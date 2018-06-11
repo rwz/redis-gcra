@@ -11,5 +11,5 @@ Gem::Specification.new do |spec|
   spec.files        = Dir["LICENSE.txt", "README.md", "lib/**/**", "vendor/**/**"]
   spec.require_path = "lib"
 
-  spec.add_dependency "redis", "~> 3.3"
+  spec.add_dependency "redis", ">= 3.3", "< 5"
 end

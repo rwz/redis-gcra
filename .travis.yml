@@ -1,9 +1,9 @@
 language: ruby
 rvm:
-  - 2.4.1
-  - 2.3.3
+  - 2.5
+  - 2.4
+  - 2.3
   - 2.2
-  - 2.1
 before_install:
   - wget -qO- 'https://github.com/antirez/redis/archive/3.2.10.tar.gz' | tar -xzC /tmp
   - make -j -C /tmp/redis-3.2.10 INSTALL_BIN=/tmp/redis-3.2.10 install
