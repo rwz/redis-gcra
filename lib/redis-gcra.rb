@@ -54,6 +54,6 @@ module RedisGCRA
     script = File.read(script_path)
     script_sha = Digest::SHA1.hexdigest(script)
     return script_sha if redis.script(:exists, script_sha)
-    redis.script(:load, File.read(script_path))
+    redis.script(:load, script)
   end
 end
