@@ -28,7 +28,7 @@ end
 local allow_at = math.max(tat, now) - burst_offset
 local diff = now - allow_at
 
-local remaining = math.floor(diff / emission_interval + 0.5) -- poor's man round
+local remaining = math.floor(diff / emission_interval + 0.5) -- poor man's round
 
 local reset_after = tat - now
 if reset_after == 0 then
