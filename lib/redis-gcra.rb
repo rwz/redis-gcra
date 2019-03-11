@@ -7,11 +7,11 @@ module RedisGCRA
   autoload :Result, "redis-gcra/result"
 
   def limit(redis:, key:, burst:, rate:, period:, cost: 1)
-    call redis, :perform_gcra_ratelimit, key, burst, rate, period, cost
+    call(redis, :perform_gcra_ratelimit, key, burst, rate, period, cost)
   end
 
   def peek(redis:, key:, burst:, rate:, period:)
-    call redis, :inspect_gcra_ratelimit, key, burst, rate, period
+    call(redis, :inspect_gcra_ratelimit, key, burst, rate, period)
   end
 
   private
@@ -33,7 +33,7 @@ module RedisGCRA
 
   def call_script(redis, script_name, *args)
     script_sha = mutex.synchronize { get_cached_sha(redis, script_name) }
-    redis.evalsha script_sha, *args
+    redis.evalsha(script_sha, *args)
   end
 
   def redis_cache
